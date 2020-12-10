@@ -2,6 +2,7 @@ name: rnd_example
 description: Curve distribution test for Rnd
 author: Grant Skinner
 repository: TODO!
+publish_to: none
 
 version: 1.0.0+1
 

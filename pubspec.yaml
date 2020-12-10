@@ -3,11 +3,10 @@ description: Extension methods & helpers for Random, and a globally accessible i
 repository: https://github.com/gskinner/dart_rnd
 homepage: https://github.com/gskinner/dart_rnd
 
-version: 0.1.0
+version: 0.1.1
 
 environment:
-  sdk: '>=2.7.0 <3.0.0'
-  flutter: ^1.6.7
+  sdk: '>=2.12.0-0 <3.0.0'
 
 dependencies:
   flutter:

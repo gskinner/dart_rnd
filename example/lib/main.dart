@@ -59,13 +59,13 @@ class _MyHomePageState extends State<MyHomePage> {
         Container(
           color: Colors.white,
           child: Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            _ValueLabel("0 →"),
+            _valueLabel("0 →"),
             DropdownButton(
               value: selectedCurve,
               onChanged: (item) => setState(() { selectedCurve = item; }),
               items: curves,
             ),
-            _ValueLabel("← 1"),
+            _valueLabel("← 1"),
           ],),
         ),
         Expanded(child: CustomPaint(
@@ -76,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _ValueLabel(String label) {
+  Widget _valueLabel(String label) {
     return Padding(
       padding: EdgeInsets.all(12.0),
       child: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),

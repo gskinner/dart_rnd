@@ -12,25 +12,25 @@ Random rnd = Random(_seed);
 set rndSeed(int seed) => rnd = Random(_seed = seed);
 
 /// Gets the seed of the `rnd` global `Random` instance.
-get rndSeed => _seed;
+int get rndSeed => _seed;
 
 /// A collection of helpful extensions for the dart:math Random class.
 extension RndExtensions on Random {
   /// Allows you to call a Random instance directly to get a random `double` between min and max.
   /// If only one param is passed, a value between 0 and it is returned. Ex. `rnd(10)` returns 0-10.
   /// If no params are passed, a value between 0 and 1 is returned. Ex. `rnd()` returns 0-1.
-  double call([double min, double max]) {
+  double call([double? min, double? max]) {
     if (max == null) {
       max = min ?? 1.0;
       min = 0.0;
-    }
+    } else if (min == null) throw ArgumentError();
     return getDouble(min, max);
   }
 
   /// Returns a random `int` between min and max.
   /// Optionally transformed with the specified `Curve`.
   /// For example, passing `Curves.slowMiddle` would favor numbers in the middle of the range.
-  int getInt(int min, int max, {Curve curve}) {
+  int getInt(int min, int max, {Curve? curve}) {
     return curve == null ? min + nextInt(max-min) :
       getDouble(min * 1.0, max * 1.0, curve: curve).toInt();
   }
@@ -38,7 +38,7 @@ extension RndExtensions on Random {
   /// Returns a random `double` between min and max.
   /// Optionally transformed with the specified `Curve`.
   /// For example, passing `Curves.easeIn` would favor numbers closer to `min`.
-  double getDouble(double min, double max, {Curve curve}) {
+  double getDouble(double min, double max, {Curve? curve}) {
     return curve == null ? min + nextDouble() * (max - min) :
       min + curve.transform(nextDouble()) * (max - min);
   }
@@ -86,10 +86,10 @@ extension RndExtensions on Random {
   /// This would return a color with an alpha of 1.0 (the default), a random hue of +/- 30 deg of red,
   /// a saturation between 0.8 and 1.0, and a lightness of exactly 0.5.
   Color getColor({
-    double alpha, double minAlpha=1.0, double maxAlpha=1.0,
-    double hue, double hueRange=0.0, double minHue=0.0, double maxHue=360.0,
-    double saturation, double minSaturation=0.0, double maxSaturation=1.0, 
-    double lightness, double minLightness=0.0, double maxLightness=1.0,
+    double? alpha, double minAlpha=1.0, double maxAlpha=1.0,
+    double? hue, double hueRange=0.0, double minHue=0.0, double maxHue=360.0,
+    double? saturation, double minSaturation=0.0, double maxSaturation=1.0, 
+    double? lightness, double minLightness=0.0, double maxLightness=1.0,
   }) {
     minHue = (hue == null ? minHue : hue - hueRange) % 360;
     maxHue = (hue == null ? maxHue : hue + hueRange) % 360;
@@ -107,7 +107,7 @@ extension RndExtensions on Random {
   /// If `remove` is true, the item is removed from the list.
   /// Optionally transformed with the specified `Curve`.
   /// For example, passing `Curves.easeOut` would favor items toward the end of the list.
-  dynamic getItem(List list, {Curve curve, bool remove=false}) {
+  dynamic getItem(List list, {Curve? curve, bool remove=false}) {
     final int i = getInt(0, list.length, curve: curve);
     return remove ? list.removeAt(i) : list[i];
   }
