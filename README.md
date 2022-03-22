@@ -55,7 +55,7 @@ rnd.getInt(0, 100, curve: Curves.easeIn)
 This would favor values nearer to 0, whereas `easeOut` would favor values nearer to 100. The included `example` app visualizes the effect of different curves.
 
 ## Hue
-The included `Hue` class provides named hue values for use with `getColor`. For example, `Hue.green == 120`.
+The included `Hue` class provides named hue values for use with `getColor`. For example:
 
 ```dart
 rnd.getColor(hue: Hue.red); // red, green, blue, yellow, cyan, magenta

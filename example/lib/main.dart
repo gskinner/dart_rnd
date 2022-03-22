@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -29,6 +29,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String selectedCurve = 'linear (or none)';
+  String selectedHue = 'blue';
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +40,26 @@ class _MyHomePageState extends State<MyHomePage> {
       curves.add(DropdownMenuItem<String>(value: k, child: Text(k), ));
     });
 
-    Curve curve = curveMap[selectedCurve];
-    List<FractionalOffset> points = [];
+    List<DropdownMenuItem<String>> hues = [];
+    hueMap.forEach((k, v) {
+      hues.add(DropdownMenuItem<String>(value: k, child: Text(k), ));
+    });
+
+    Curve? curve = curveMap[selectedCurve];
+    double? hue = hueMap[selectedHue];
+    List<ColoredPoint> points = [];
     
     for (int i=0; i<25000; i++) {
-      points.add(FractionalOffset(
+      points.add(ColoredPoint(
         rnd.getDouble(0, 1, curve: curve),
         rnd.getDouble(0, 1),
+        rnd.getColor(
+          hue: hue,
+          hueRange: 45,
+          saturation: 1.0,
+          lightness: 0.5,
+          opacity: 0.5,
+        ),
       ));
     }
 
@@ -59,13 +73,18 @@ class _MyHomePageState extends State<MyHomePage> {
         Container(
           color: Colors.white,
           child: Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            _ValueLabel("0 →"),
+            _getValueLabel("0 →"),
             DropdownButton(
               value: selectedCurve,
-              onChanged: (item) => setState(() { selectedCurve = item; }),
+              onChanged: (item) => setState(() { selectedCurve = item as String; }),
               items: curves,
             ),
-            _ValueLabel("← 1"),
+            DropdownButton(
+              value: selectedHue,
+              onChanged: (item) => setState(() { selectedHue = item as String; }),
+              items: hues,
+            ),
+            _getValueLabel("← 1"),
           ],),
         ),
         Expanded(child: CustomPaint(
@@ -76,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _ValueLabel(String label) {
+  Widget _getValueLabel(String label) {
     return Padding(
       padding: EdgeInsets.all(12.0),
       child: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
@@ -86,12 +105,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
 void _runTests() {
   // TODO: these should get moved to proper tests and/or visualized.
+  print("\n------------------\nBASIC TESTS:");
   _runTest("rnd()", ()=>rnd());
   _runTest("rnd(10)", ()=>rnd(10));
   _runTest("rnd(10, 20)", ()=>rnd(10, 20));
   print("rndSeed: $rndSeed");
 
-  print("\n");
+  print("\n------------------\nNUMERIC TESTS:");
   _runTest("int, 40-50, easeOut", ()=>rnd.getInt(40, 50, curve:Curves.easeOutQuint));
   _runTest("double, 40-50, easeOut", ()=>rnd.getDouble(40, 50, curve:Curves.easeOutQuint).toStringAsFixed(2));
   _runTest("bool, 0.75", ()=>rnd.getBool(0.75));
@@ -100,45 +120,50 @@ void _runTests() {
   _runTest("deg", ()=>rnd.getDeg());
   _runTest("rad", ()=>rnd.getRad());
 
-  print("\n");
+  print("\n------------------\nCOLOR TESTS:");
   _runTest("color", ()=>rnd.getColor());
   _runTest("red", ()=>rnd.getColor(hue: Hue.red, hueRange: 20, minSaturation: 0.5, lightness: 0.5));
   _runTest("magenta->yellow", ()=>rnd.getColor(minHue: Hue.magenta, maxHue: Hue.yellow, saturation: 1.0, lightness: 0.5));
-  _runTest("alpha > 0.5", ()=>rnd.getColor(minAlpha: 0.5, lightness: 0.0));
+  _runTest("opacity > 0.5", ()=>rnd.getColor(minOpacity: 0.5, lightness: 0.0));
 
-  List list = ["zero", "one", "two", "three", "four"];
-  List shuffled = rnd.shuffle(list, copy: true);
+  List<String> list = ["zero", "one", "two", "three", "four"];
+  List<String> shuffled = rnd.shuffle(list, copy: true);
 
-  print("\n");
+  print("\n------------------\nLIST TESTS:");
   print('list: $list');
   print('shuffled: $shuffled');
 
-  _runTest("item, false", ()=>rnd.getItem(list), 2);
+  _runTest("item, false", (){
+    String str = rnd.getItem(list); // test typing
+    return str;
+  }, 2);
   print('list: $list');
 
   _runTest("item, true", ()=>rnd.getItem(list, remove:true), 2);
   print('list: $list');
 }
 
-_runTest(String label, Function f, [int count=10]) {
+_runTest(String label, Function f, [int count=5]) {
   String str = '$label: [';
-  for (int i=0; i<count; i++) { str += '${f()}, '; }
+  for (int i=0; i<count; i++) { str += '${i>0?', ':''}${f()}'; }
   print('$str]');
 }
 
 class _PointPainter extends CustomPainter {
-  List<FractionalOffset> points;
+  List<ColoredPoint> points;
 
-  _PointPainter({@required this.points});
+  _PointPainter({required this.points});
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (points == null || points.length == 0) { return; }
-    Paint dot = new Paint()..color = Colors.blue.withOpacity(0.5);
+    if (points.length == 0) { return; }
+    Paint dot = new Paint();
     dot.blendMode = BlendMode.screen;
     int l = points.length;
     for (int i=0; i < l; i++) {
-      canvas.drawCircle(points[i].alongSize(size), 1.7, dot);
+      ColoredPoint pt = points[i];
+      dot.color = pt.color;
+      canvas.drawCircle(pt.alongSize(size), 1.7, dot);
     }
   }
 
@@ -148,6 +173,26 @@ class _PointPainter extends CustomPainter {
   }
 
 }
+
+class ColoredPoint {
+  final double x;
+  final double y;
+  final Color color;
+  ColoredPoint(this.x, this.y, this.color);
+
+  Offset alongSize(Size size) {
+    return Offset(x * size.width, y * size.height);
+  }
+}
+
+const Map<String, double> hueMap = {
+  'red': Hue.red,
+  'green': Hue.green,
+  'blue': Hue.blue,
+  'yellow': Hue.yellow,
+  'cyan': Hue.cyan,
+  'magenta': Hue.magenta,
+};
 
 // Curves that return values outside 0-1 are commented out.
 const Map<String, Curve> curveMap = {

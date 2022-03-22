@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 
 int _seed = DateTime.now().millisecondsSinceEpoch;
@@ -12,25 +11,25 @@ Random rnd = Random(_seed);
 set rndSeed(int seed) => rnd = Random(_seed = seed);
 
 /// Gets the seed of the `rnd` global `Random` instance.
-get rndSeed => _seed;
+int get rndSeed => _seed;
 
 /// A collection of helpful extensions for the dart:math Random class.
 extension RndExtensions on Random {
   /// Allows you to call a Random instance directly to get a random `double` between min and max.
   /// If only one param is passed, a value between 0 and it is returned. Ex. `rnd(10)` returns 0-10.
   /// If no params are passed, a value between 0 and 1 is returned. Ex. `rnd()` returns 0-1.
-  double call([double min, double max]) {
+  double call([double? min, double? max]) {
     if (max == null) {
       max = min ?? 1.0;
       min = 0.0;
     }
-    return getDouble(min, max);
+    return getDouble(min!, max);
   }
 
   /// Returns a random `int` between min and max.
   /// Optionally transformed with the specified `Curve`.
   /// For example, passing `Curves.slowMiddle` would favor numbers in the middle of the range.
-  int getInt(int min, int max, {Curve curve}) {
+  int getInt(int min, int max, {Curve? curve}) {
     return curve == null ? min + nextInt(max-min) :
       getDouble(min * 1.0, max * 1.0, curve: curve).toInt();
   }
@@ -38,7 +37,7 @@ extension RndExtensions on Random {
   /// Returns a random `double` between min and max.
   /// Optionally transformed with the specified `Curve`.
   /// For example, passing `Curves.easeIn` would favor numbers closer to `min`.
-  double getDouble(double min, double max, {Curve curve}) {
+  double getDouble(double min, double max, {Curve? curve}) {
     return curve == null ? min + nextDouble() * (max - min) :
       min + curve.transform(nextDouble()) * (max - min);
   }
@@ -73,7 +72,7 @@ extension RndExtensions on Random {
 
   /// Returns a random Color, based on the specified parameters.
   /// By default, it will return an opaque random color.
-  /// Each color component (alpha, hue, saturation, lightness) can either have a specific value set,
+  /// Each color component (opacity, hue, saturation, lightness) can either have a specific value set,
   /// or a min to max range.
   /// 
   /// The hue component also supports a `hueRange` parameter that is used
@@ -83,20 +82,20 @@ extension RndExtensions on Random {
   /// 
   /// `getColor({hue: Hue.red, hueRange: 30, minSaturation: 0.8, lightness: 0.5})`
   /// 
-  /// This would return a color with an alpha of 1.0 (the default), a random hue of +/- 30 deg of red,
+  /// This would return a color with an opacity of 1.0 (the default), a random hue of +/- 30 deg of red,
   /// a saturation between 0.8 and 1.0, and a lightness of exactly 0.5.
   Color getColor({
-    double alpha, double minAlpha=1.0, double maxAlpha=1.0,
-    double hue, double hueRange=0.0, double minHue=0.0, double maxHue=360.0,
-    double saturation, double minSaturation=0.0, double maxSaturation=1.0, 
-    double lightness, double minLightness=0.0, double maxLightness=1.0,
+    double? opacity, double minOpacity=1.0, double maxOpacitya=1.0,
+    double? hue, double hueRange=0.0, double minHue=0.0, double maxHue=360.0,
+    double? saturation, double minSaturation=0.0, double maxSaturation=1.0, 
+    double? lightness, double minLightness=0.0, double maxLightness=1.0,
   }) {
     minHue = (hue == null ? minHue : hue - hueRange) % 360;
     maxHue = (hue == null ? maxHue : hue + hueRange) % 360;
     if (minHue > maxHue) { minHue -= 360; }
     
     return HSLColor.fromAHSL(
-      alpha ?? getDouble(minAlpha, maxAlpha),
+      opacity ?? getDouble(minOpacity, maxOpacitya),
       getDouble(minHue, maxHue) % 360,
       saturation ?? getDouble(minSaturation, maxSaturation),
       lightness ?? getDouble(minLightness, maxLightness)
@@ -107,7 +106,7 @@ extension RndExtensions on Random {
   /// If `remove` is true, the item is removed from the list.
   /// Optionally transformed with the specified `Curve`.
   /// For example, passing `Curves.easeOut` would favor items toward the end of the list.
-  dynamic getItem(List list, {Curve curve, bool remove=false}) {
+  T getItem<T>(List<T> list, {Curve? curve, bool remove=false}) {
     final int i = getInt(0, list.length, curve: curve);
     return remove ? list.removeAt(i) : list[i];
   }
@@ -129,11 +128,11 @@ extension RndExtensions on Random {
 
 /// Hue values for primary and secondary colors. For use with `getColor()`.
 class Hue {
-  static double red = 0.0;
-  static double green = 120.0;
-  static double blue = 240.0;
+  static const double red = 0.0;
+  static const double green = 120.0;
+  static const double blue = 240.0;
 
-  static double yellow = 60.0;
-  static double cyan = 180.0;
-  static double magenta = 300.0;
+  static const double yellow = 60.0;
+  static const double cyan = 180.0;
+  static const double magenta = 300.0;
 }

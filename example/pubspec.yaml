@@ -1,12 +1,12 @@
 name: rnd_example
 description: Curve distribution test for Rnd
-author: Grant Skinner
-repository: TODO!
+repository: https://github.com/gskinner/dart_rnd/tree/master/example
+publish_to: none
 
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
