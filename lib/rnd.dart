@@ -30,33 +30,35 @@ extension RndExtensions on Random {
   /// Optionally transformed with the specified `Curve`.
   /// For example, passing `Curves.slowMiddle` would favor numbers in the middle of the range.
   int getInt(int min, int max, {Curve? curve}) {
-    return curve == null ? min + nextInt(max-min) :
-      getDouble(min * 1.0, max * 1.0, curve: curve).toInt();
+    return curve == null
+        ? min + nextInt(max - min)
+        : getDouble(min * 1.0, max * 1.0, curve: curve).toInt();
   }
 
   /// Returns a random `double` between min and max.
   /// Optionally transformed with the specified `Curve`.
   /// For example, passing `Curves.easeIn` would favor numbers closer to `min`.
   double getDouble(double min, double max, {Curve? curve}) {
-    return curve == null ? min + nextDouble() * (max - min) :
-      min + curve.transform(nextDouble()) * (max - min);
+    return curve == null
+        ? min + nextDouble() * (max - min)
+        : min + curve.transform(nextDouble()) * (max - min);
   }
 
   /// Returns a `bool`, where `chance` specifies the chance of returning `true`.
   /// For example, `getBool(0.8)`, would have an 80% chance to return `true`.
-  bool getBool([double chance=0.5]) {
+  bool getBool([double chance = 0.5]) {
     return nextDouble() < chance;
   }
 
   /// Returns `0` or `1`, where `chance` specifies the chance of it returning `1`.
   /// For example, `getBit(0.8)`, would have an 80% chance to return `1`.
-  int getBit([double chance=0.5]) {
+  int getBit([double chance = 0.5]) {
     return nextDouble() < chance ? 1 : 0;
   }
 
   /// Returns `-1` or `1`, where `chance` specifies the chance of it returning `1`.
   /// For example, `getSign(0.8)`, would have an 80% chance to return `1`.
-  int getSign([double chance=0.5]) {
+  int getSign([double chance = 0.5]) {
     return nextDouble() < chance ? 1 : -1;
   }
 
@@ -74,56 +76,71 @@ extension RndExtensions on Random {
   /// By default, it will return an opaque random color.
   /// Each color component (opacity, hue, saturation, lightness) can either have a specific value set,
   /// or a min to max range.
-  /// 
+  ///
   /// The hue component also supports a `hueRange` parameter that is used
   /// with `hue` to calculate a min and max value (hue +/- hueRange).
-  /// 
+  ///
   /// For example, if you wanted a bright red random color, you could use:
-  /// 
+  ///
   /// `getColor({hue: Hue.red, hueRange: 30, minSaturation: 0.8, lightness: 0.5})`
-  /// 
+  ///
   /// This would return a color with an opacity of 1.0 (the default), a random hue of +/- 30 deg of red,
   /// a saturation between 0.8 and 1.0, and a lightness of exactly 0.5.
   Color getColor({
-    double? opacity, double minOpacity=1.0, double maxOpacitya=1.0,
-    double? hue, double hueRange=0.0, double minHue=0.0, double maxHue=360.0,
-    double? saturation, double minSaturation=0.0, double maxSaturation=1.0, 
-    double? lightness, double minLightness=0.0, double maxLightness=1.0,
+    double? opacity,
+    double minOpacity = 1.0,
+    double maxOpacitya = 1.0,
+    double? hue,
+    double hueRange = 0.0,
+    double minHue = 0.0,
+    double maxHue = 360.0,
+    double? saturation,
+    double minSaturation = 0.0,
+    double maxSaturation = 1.0,
+    double? lightness,
+    double minLightness = 0.0,
+    double maxLightness = 1.0,
   }) {
     minHue = (hue == null ? minHue : hue - hueRange) % 360;
     maxHue = (hue == null ? maxHue : hue + hueRange) % 360;
-    if (minHue > maxHue) { minHue -= 360; }
-    
+    if (minHue > maxHue) {
+      minHue -= 360;
+    }
+
     return HSLColor.fromAHSL(
-      opacity ?? getDouble(minOpacity, maxOpacitya),
-      getDouble(minHue, maxHue) % 360,
-      saturation ?? getDouble(minSaturation, maxSaturation),
-      lightness ?? getDouble(minLightness, maxLightness)
-    ).toColor();
+            opacity ?? getDouble(minOpacity, maxOpacitya),
+            getDouble(minHue, maxHue) % 360,
+            saturation ?? getDouble(minSaturation, maxSaturation),
+            lightness ?? getDouble(minLightness, maxLightness))
+        .toColor();
   }
 
   /// Returns a random item from the specified `List`.
   /// If `remove` is true, the item is removed from the list.
   /// Optionally transformed with the specified `Curve`.
   /// For example, passing `Curves.easeOut` would favor items toward the end of the list.
-  T getItem<T>(List<T> list, {Curve? curve, bool remove=false}) {
+  T getItem<T>(List<T> list, {Curve? curve, bool remove = false}) {
     final int i = getInt(0, list.length, curve: curve);
     return remove ? list.removeAt(i) : list[i];
   }
 
   /// Randomizes the order of the specified `List`.
   /// If `copy` is true, returns a shuffled copy of the list, if false, it shuffles and returns the original.
-  List<T> shuffle<T>(List<T> list, {bool copy=false}) {
-    if (copy) { list = [...list]; }
-		for (int i=0, l = list.length; i<l; i++) {
-			int j = nextInt(l);
-			if (j==i) { continue; }
-			T item = list[j];
-			list[j] = list[i];
-			list[i] = item;
-		}
-		return list;
-	}
+  List<T> shuffle<T>(List<T> list, {bool copy = false}) {
+    if (copy) {
+      list = [...list];
+    }
+    for (int i = 0, l = list.length; i < l; i++) {
+      int j = nextInt(l);
+      if (j == i) {
+        continue;
+      }
+      T item = list[j];
+      list[j] = list[i];
+      list[i] = item;
+    }
+    return list;
+  }
 }
 
 /// Hue values for primary and secondary colors. For use with `getColor()`.
